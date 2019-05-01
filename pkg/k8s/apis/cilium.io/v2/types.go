@@ -547,3 +547,94 @@ type CiliumEndpointList struct {
 	// Items is a list of CiliumEndpoint
 	Items []CiliumEndpoint `json:"items"`
 }
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// CiliumNode is a node managed by Cilium
+type CiliumNode struct {
+	// +k8s:openapi-gen=false
+	metav1.TypeMeta `json:",inline"`
+	// +k8s:openapi-gen=false
+	metav1.ObjectMeta `json:"metadata"`
+
+	Spec NodeSpec `json:"spec"`
+
+	Status NodeStatus `json:"status"`
+}
+
+// NodeSpec is the configuration specification of the node
+type NodeSpec struct {
+	ENI  ENISpec  `json:"eni,omitempty"`
+	IPAM IPAMSpec `json:"ipam,omitempty"`
+}
+
+// ENISpec is the ENI specification of a node
+type ENISpec struct {
+	InstanceID               string            `json:"instance-id,omitempty"`
+	PreAllocate              int               `json:"preallocate,omitempty"`
+	FirstAllocationInterface int               `json:"first-allocation-interface,omitempty"`
+	SecurityGroups           []string          `json:"security-groups,omitempty"`
+	AddressesPerENI          int               `json:"addresses-per-eni,omitempty"`
+	SubnetTags               map[string]string `json:"subnet-tags,omitempty"`
+}
+
+type IPAMSpec struct {
+	Available map[string]AllocationIP `json:"available,omitempty"`
+}
+
+// NodeStatus is the status of a node
+type NodeStatus struct {
+	ENI  ENIStatus  `json:"eni,omitempty"`
+	IPAM IPAMStatus `json:"ipam,omitempty"`
+}
+
+type IPAMStatus struct {
+	InUse map[string]AllocationIP `json:"used,omitempty"`
+}
+
+type AllocationIP struct {
+	Owner    string `json:"owner,omitempty"`
+	Resource string `json:"resource,omitempty"`
+}
+
+// ENIStatus is the status of ENI addressing of the node
+type ENIStatus struct {
+	ENIs map[string]ENI `json:"enis,omitempty"`
+}
+
+type ENI struct {
+	ID             string
+	IP             string
+	InstanceID     string
+	MAC            string
+	InterfaceName  string
+	Description    string
+	Number         int
+	Subnet         AwsSubnet
+	VPC            AwsVPC
+	Addresses      []string
+	SecurityGroups []string
+}
+
+type AwsSubnet struct {
+	ID   string
+	CIDR string
+}
+
+type AwsVPC struct {
+	ID          string
+	PrimaryCIDR string
+	CIDRs       []string
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//
+// CiliumNodeList is a list of CiliumNode objects
+type CiliumNodeList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	// Items is a list of CiliumNode
+	Items []CiliumNode `json:"items"`
+}
