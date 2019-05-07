@@ -454,6 +454,10 @@ const (
 
 	// IPAM is the IPAM method to use
 	IPAM = "ipam"
+
+	// ForceLocalPolicyEvalAtSource forces a policy decision at the source
+	// endpoint for all local communication
+	ForceLocalPolicyEvalAtSource = "force-local-policy-eval-at-source"
 )
 
 // FQDNS variables
@@ -912,29 +916,34 @@ type DaemonConfig struct {
 
 	// IPAM is the IPAM method to use
 	IPAM string
+
+	// ForceLocalPolicyEvalAtSource forces a policy decision at the source
+	// endpoint for all local communication
+	ForceLocalPolicyEvalAtSource bool
 }
 
 var (
 	// Config represents the daemon configuration
 	Config = &DaemonConfig{
-		Opts:                      NewIntOptions(&DaemonOptionLibrary),
-		Monitor:                   &models.MonitorStatus{Cpus: int64(runtime.NumCPU()), Npages: 64, Pagesize: int64(os.Getpagesize()), Lost: 0, Unknown: 0},
-		IPv6ClusterAllocCIDR:      defaults.IPv6ClusterAllocCIDR,
-		IPv6ClusterAllocCIDRBase:  defaults.IPv6ClusterAllocCIDRBase,
-		EnableHostIPRestore:       defaults.EnableHostIPRestore,
-		EnableHealthChecking:      defaults.EnableHealthChecking,
-		EnableIPv4:                defaults.EnableIPv4,
-		EnableIPv6:                defaults.EnableIPv6,
-		ToFQDNsMaxIPsPerHost:      defaults.ToFQDNsMaxIPsPerHost,
-		KVstorePeriodicSync:       defaults.KVstorePeriodicSync,
-		IdentityChangeGracePeriod: defaults.IdentityChangeGracePeriod,
-		ContainerRuntimeEndpoint:  make(map[string]string),
-		FixedIdentityMapping:      make(map[string]string),
-		KVStoreOpt:                make(map[string]string),
-		LogOpt:                    make(map[string]string),
-		SelectiveRegeneration:     defaults.SelectiveRegeneration,
-		LoopbackIPv4:              defaults.LoopbackIPv4,
-		IPAM:                      defaults.IPAM,
+		Opts:                         NewIntOptions(&DaemonOptionLibrary),
+		Monitor:                      &models.MonitorStatus{Cpus: int64(runtime.NumCPU()), Npages: 64, Pagesize: int64(os.Getpagesize()), Lost: 0, Unknown: 0},
+		IPv6ClusterAllocCIDR:         defaults.IPv6ClusterAllocCIDR,
+		IPv6ClusterAllocCIDRBase:     defaults.IPv6ClusterAllocCIDRBase,
+		EnableHostIPRestore:          defaults.EnableHostIPRestore,
+		EnableHealthChecking:         defaults.EnableHealthChecking,
+		EnableIPv4:                   defaults.EnableIPv4,
+		EnableIPv6:                   defaults.EnableIPv6,
+		ToFQDNsMaxIPsPerHost:         defaults.ToFQDNsMaxIPsPerHost,
+		KVstorePeriodicSync:          defaults.KVstorePeriodicSync,
+		IdentityChangeGracePeriod:    defaults.IdentityChangeGracePeriod,
+		ContainerRuntimeEndpoint:     make(map[string]string),
+		FixedIdentityMapping:         make(map[string]string),
+		KVStoreOpt:                   make(map[string]string),
+		LogOpt:                       make(map[string]string),
+		SelectiveRegeneration:        defaults.SelectiveRegeneration,
+		LoopbackIPv4:                 defaults.LoopbackIPv4,
+		IPAM:                         defaults.IPAM,
+		ForceLocalPolicyEvalAtSource: defaults.ForceLocalPolicyEvalAtSource,
 	}
 )
 
@@ -1163,6 +1172,7 @@ func (c *DaemonConfig) Populate() {
 	c.EnableTracing = viper.GetBool(EnableTracing)
 	c.EncryptInterface = viper.GetString(EncryptInterface)
 	c.EnvoyLogPath = viper.GetString(EnvoyLog)
+	c.ForceLocalPolicyEvalAtSource = viper.GetBool(ForceLocalPolicyEvalAtSource)
 	c.HostDevice = getHostDevice()
 	c.HTTPIdleTimeout = viper.GetInt(HTTPIdleTimeout)
 	c.HTTPMaxGRPCTimeout = viper.GetInt(HTTPMaxGRPCTimeout)
