@@ -198,4 +198,7 @@ const (
 
 	// LoopbackIPv4 is the default address for service loopback
 	LoopbackIPv4 = "169.254.42.1"
+
+	// IPAM is default IPAM backend to use
+	IPAM = "hostscope"
 )
