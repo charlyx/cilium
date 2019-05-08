@@ -15,19 +15,34 @@
 package ipam
 
 import (
+	"net"
+
 	"github.com/cilium/cilium/pkg/datapath"
 	"github.com/cilium/cilium/pkg/lock"
-
-	"k8s.io/kubernetes/pkg/registry/core/service/ipallocator"
 )
+
+// Allocator is the interface for an IP allocator implement
+type Allocator interface {
+	// Allocate must attempt to allocate a specific IP or fail
+	Allocate(ip net.IP, owner string) error
+
+	// Release must release a previously allocated IP
+	Release(ip net.IP) error
+
+	// AllocateNext must allocate the next available IP or fail if no more
+	// IPs are available
+	AllocateNext(owner string) (net.IP, error)
+
+	Dump() map[string]string
+}
 
 // Config is the IPAM configuration used for a particular IPAM type.
 type IPAM struct {
 	nodeAddressing datapath.NodeAddressing
 	config         Configuration
 
-	IPv6Allocator *ipallocator.Range
-	IPv4Allocator *ipallocator.Range
+	IPv6Allocator Allocator
+	IPv4Allocator Allocator
 
 	// owner maps an IP to the owner
 	owner map[string]string
