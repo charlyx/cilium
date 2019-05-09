@@ -35,7 +35,7 @@ type Allocator interface {
 	// IPs are available
 	AllocateNext(owner string) (net.IP, error)
 
-	Dump() map[string]string
+	Dump() (map[string]string, string)
 }
 
 // Config is the IPAM configuration used for a particular IPAM type.
