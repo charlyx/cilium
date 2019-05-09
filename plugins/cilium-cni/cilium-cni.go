@@ -353,6 +353,13 @@ func cmdAdd(args *skel.CmdArgs) (err error) {
 		Addressing:   &models.AddressPair{},
 		K8sPodName:   string(cniArgs.K8S_POD_NAME),
 		K8sNamespace: string(cniArgs.K8S_POD_NAMESPACE),
+		DatapathConfiguration: &models.EndpointDatapathConfiguration{
+			// The route is pointing directly into the veth of the
+			// pod, install a host-facing egress program to
+			// implement ingress policy and to provide reverse NAT
+			RequireEgressProg:    true,
+			InstallEndpointRoute: true,
+		},
 	}
 
 	switch conf.DatapathMode {
